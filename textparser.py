@@ -8,6 +8,7 @@ License: GNU GPLv3 http://www.gnu.org/licenses/gpl.html
 
 import os
 import re
+import redis
 
 def open_gunzip(filename):
     """open the filename, using a pipe and gunzip to read a
@@ -20,14 +21,13 @@ def process_file(filename, f, num=float('Inf')):
     """read the given filename and extract information;
     for each film, call f() with string arguments:
     actor, date, title, role """
-    
     fp = open_gunzip(filename)
     i = 0
 
-    # skip over the header until you get to the following magic line
-    for line in fp:
-        if line.strip() == '----      ------':
-            break
+    # # skip over the header until you get to the following magic line
+    # for line in fp:
+    #     if line.strip() == '----      ------':
+    #         break
 
     # regexp to recognize actor, tabs, movie
     split1 = re.compile('([^\t]*)\t*(.*)', re.UNICODE)
@@ -83,8 +83,14 @@ def process_file(filename, f, num=float('Inf')):
 
 
 if __name__ == '__main__':
+    r = redis.StrictRedis(host="localhost",port=6379, db=0)
 
     def print_info(actor, date, title, role):
         print actor, date, title, role
 
-    process_file('actors.list.gz', print_info)
+    def by_movie(actor, date, title, role):
+        print r.smembers(title)
+        print title, actor
+        r.sadd(title, actor)
+
+    process_file('actresses.list.gz', by_movie)
