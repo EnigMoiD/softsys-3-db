@@ -24,10 +24,10 @@ def process_file(filename, f, num=float('Inf')):
     fp = open_gunzip(filename)
     i = 0
 
-    # # skip over the header until you get to the following magic line
-    # for line in fp:
-    #     if line.strip() == '----      ------':
-    #         break
+    # skip over the header until you get to the following magic line
+    for line in fp:
+        if line.strip() == '----      ------':
+            break
 
     # regexp to recognize actor, tabs, movie
     split1 = re.compile('([^\t]*)\t*(.*)', re.UNICODE)
