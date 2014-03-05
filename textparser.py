@@ -17,7 +17,7 @@ def open_gunzip(filename):
     fp = os.popen(cmd)
     return fp
 
-def process_file(filename, f, num=float('Inf')):
+def process_file(filename, f):
     """read the given filename and extract information;
     for each film, call f() with string arguments:
     actor, date, title, role """
@@ -25,8 +25,9 @@ def process_file(filename, f, num=float('Inf')):
     i = 0
 
     # skip over the header until you get to the following magic line
+    magic = re.compile('----\s+?------')
     for line in fp:
-        if line.strip() == '----      ------':
+        if magic.match(line.strip()):
             break
 
     # regexp to recognize actor, tabs, movie
@@ -50,6 +51,9 @@ def process_file(filename, f, num=float('Inf')):
         ro = split1.match(line)
         if ro:
             new_actor, info = ro.groups()
+            if not info:
+                stat = fp.close()
+                return
             if new_actor:
                 actor = new_actor
         else:
@@ -72,9 +76,7 @@ def process_file(filename, f, num=float('Inf')):
                 print 'BAD2', line
                 continue
 
-            f(actor, date, title, role)
-            i += 1
-            if i > num: break
+            f(actor, date, title.rstrip(), role)
         else:
             print 'BAD3', line
             continue
@@ -89,8 +91,11 @@ if __name__ == '__main__':
         print actor, date, title, role
 
     def by_movie(actor, date, title, role):
-        print r.smembers(title)
-        print title, actor
+        # print actor
+        # print title
         r.sadd(title, actor)
 
+    process_file('actors.list.gz', by_movie)
+    print "Done with actors, doing actresses now"
     process_file('actresses.list.gz', by_movie)
+    print "Done with actresses"
