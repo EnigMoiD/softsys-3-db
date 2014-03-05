@@ -85,17 +85,28 @@ def process_file(filename, f):
 
 
 if __name__ == '__main__':
-    r = redis.StrictRedis(host="localhost",port=6379, db=0)
+    r0 = redis.StrictRedis(host="localhost",port=6379, db=0)
+    r1 = redis.StrictRedis(host="localhost",port=6379, db=1)
 
     def print_info(actor, date, title, role):
         print actor, date, title, role
 
     def by_movie(actor, date, title, role):
-        # print actor
-        # print title
-        r.sadd(title, actor)
+        # if title in title_dict.keys():
+        #     title_dict[title].add(actor)
+        # else:
+        #     title_dict[title] = set(actor)
+        r0.sadd(title, actor)
 
     process_file('actors.list.gz', by_movie)
     print "Done with actors, doing actresses now"
     process_file('actresses.list.gz', by_movie)
     print "Done with actresses"
+
+    print "Starting redis import"
+    for movie in r0.keys():
+        for actor in r0.smembers(movie):
+            for conn_actor in r0.smembers(movie):
+                if actor != conn_actor:
+                    r1.sadd(actor, conn_actor)
+    print "Done!"
