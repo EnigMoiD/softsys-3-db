@@ -79,7 +79,9 @@ char *format_search(char *first, char* last)
 }
 
 /*
-
+Query the database. Takes Command line arguments of the form 
+"./redis_c FirstName LastName" 
+Prints all actors who have acted with the searched actor
 */
 int main(int argc, char *argv[])
 {
