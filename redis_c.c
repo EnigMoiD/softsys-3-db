@@ -3,16 +3,15 @@ Basic Redis server search functionality
 
 Copyright 2014 Ben Kahle and Evan Dorsky
 License: Creative Commons Attribution-ShareAlike 3.0
+
+Compile:
+gcc redis_c.h redis_c.c -o redis_c -lhiredis -std=c11
 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "hiredis/hiredis.h"
-
-redisContext *server_connect(char *ip, int port);
-void server_disconnect(redisContext* c);
-void server_search(redisContext* c, char* first, char* last);
-char *format_search(char *first, char* last);
+#include "redis_c.h"
 
 /*
 Connects to a redis server and handles errors.
@@ -53,10 +52,10 @@ void server_search(redisContext* c, char* first, char* last)
   redisReply* reply;
   redisCommand(c, "SELECT 1");
   int result_num;
-  reply = (redisReply *)redisCommand(c, "SCARD", search);
+  reply = (redisReply *)redisCommand(c, "SCARD '%s'", search);
   result_num = reply->integer;
   printf("%i\n", result_num);
-  reply = (redisReply *)redisCommand(c, "KEYS %s", search);
+  reply = (redisReply *)redisCommand(c, "SMEMBERS '%s'", search);
   for (int i=0; i < result_num; i++)
   {
     printf("%s\n", reply->element[i]);
@@ -79,6 +78,9 @@ char *format_search(char *first, char* last)
   return search;
 }
 
+/*
+
+*/
 int main(int argc, char *argv[])
 {
   char* ip = "127.0.0.1";
