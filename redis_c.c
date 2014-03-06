@@ -9,6 +9,10 @@ License: Creative Commons Attribution-ShareAlike 3.0
 #include <string.h>
 #include "hiredis/hiredis.h"
 
+redisContext *server_connect(char *ip, int port);
+void server_disconnect(redisContext* c);
+void server_search(redisContext* c, char* first, char* last);
+char *format_search(char *first, char* last);
 
 /*
 Connects to a redis server and handles errors.
@@ -45,6 +49,7 @@ last: actors last name
 */
 void server_search(redisContext* c, char* first, char* last)
 {
+  printf
   char* search = format_search(first, last);
   redisReply* reply;
   redisCommand(c, "SELECT 1");
@@ -57,10 +62,12 @@ void server_search(redisContext* c, char* first, char* last)
     printf("%s\n", reply->element[i]);
   }
 }
+
 /*
-Formats the command line arguments into the form "last, first" which is how redis stores the names
+Formats the first and last name into the form "last, first" which is how redis stores the names
 first: Actors first name
 last: Actors last name
+return: formated search
 */
 char *format_search(char *first, char* last)
 {
@@ -82,7 +89,7 @@ int main(int argc, char *argv[])
     return 0;
   }
   else {
-    server_search(c,argv[1], argv[2]);
+    server_search(c, argv[1], argv[2]);
   }
   redisFree(c);
   return 0;
