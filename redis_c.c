@@ -49,13 +49,13 @@ last: actors last name
 */
 void server_search(redisContext* c, char* first, char* last)
 {
-  printf
   char* search = format_search(first, last);
   redisReply* reply;
   redisCommand(c, "SELECT 1");
   int result_num;
   reply = (redisReply *)redisCommand(c, "SCARD", search);
   result_num = reply->integer;
+  printf("%i\n", result_num);
   reply = (redisReply *)redisCommand(c, "KEYS %s", search);
   for (int i=0; i < result_num; i++)
   {
